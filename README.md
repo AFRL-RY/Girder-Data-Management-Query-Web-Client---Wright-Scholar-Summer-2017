@@ -4,7 +4,8 @@ Imagery-Viewer
 Web interface for running geospatial queries on a [Girder](http://github.com/girder/girder) database.
 
 
-![](https://github.com/AFRL-RY/Girder-Data-Management-Query-Web-Client-Wright-Scholar-Summer-2017/blob/master/File_GirderQueryExampleFlow.png)
+![](https://github.com/AFRL-RY/Girder-Data-Management-Query-Web-Client-Wright-Scholar-Summer-2017/blob/master/GirderQueryExample.png)
+
 ![](https://github.com/AFRL-RY/Girder-Data-Management-Query-Web-Client-Wright-Scholar-Summer-2017/blob/master/GirderQueryExample.png)
 
 Installation
