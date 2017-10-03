@@ -1,0 +1,4 @@
+Pillow
+requests
+sphinx_rtd_theme
+graphviz

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <title>Imagery Search</title>
+
+    <!-- include example sources-->
+    <!-- Include example specific files-->
+
+    <link rel="stylesheet" href="http://10.104.6.45:8080/static/built/girder_lib.min.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-slider.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+
+
+
+    <link rel="stylesheet" href="css/main.css">
+
+
+  </head>
+  <body>
+    <!-- Navbar-->
+    <nav role="navigation" class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <i style="float:left;" class="heatmap-sample2-status fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+          <p class="heatmap-sample2-status">Updating heatmap...</p>
+          <button id="heatmap-hide">Hide Heatmap Layer</button>
+        </div>
+        <div id="gj-navbar-collapse" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <!-- Navbar items -->
+            <button class="btn btn-link" id="login" href="#">Login</button>
+            <label class="hidden" id="name" href="#"></label>
+            <button class="btn btn-link hidden" id="logout" href="#">Logout</button>
+            <div class="modal fade" id="dialog-container"></div>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div id="map"></div>
+    <div id="controls" class="controls" style="z-index:5;">
+      <div title="Select the type of annotation to add." class="form-group annotationtype">
+        <div class="shortlabel">Search in...</div>
+        <button id="rectangle" class="lastused">Rectangle</button>
+        <button id="polygon">Polygon</button>
+        <button id="point">Point + Radius</button>
+      </div>
+      <div class="form-group">
+        <div id="instructions" annotation="none">
+          <div class="annotation none"></div>
+          <div class="annotation polygon">Left-click points in the polygon.  Double click, right click, or click the starting point to close the polygon.</div>
+          <div class="annotation point">Left to create a point.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <select class="form-control" id="query-type">
+          <option value="within">Within</option>
+          <option value="intersects">Intersects</option>
+        </select>
+        <label for="min-dist-field" class="col-sm-2 control-label radius-input">Min. Distance (meters)</label>
+        <input type="number" class="form-control radius-input" id="min-dist-field" name="min-dist" value="0"></input>
+        <label for="max-dist-field" class="col-sm-2 control-label radius-input">Max. Distance (meters)</label>
+        <input type="number" class="form-control radius-input" id="max-dist-field" name="max-dist" value="5000"></input>
+      </div>
+      <button class="btn btn-default" style="" id="showjumpto">Jump to Coordinates...</button>
+      <div id="jumpto-form-group" class="form-group" style="display:none;">
+        <label for="lat-field" class="col-sm-2 control-label">Lat.</label>
+        <input type="number" class="form-control" id="lat-field" name="lat" value="39.7815"></input>
+        <label for="lon-field" class="col-sm-2 control-label">Lon.</label>
+        <input type="number" class="form-control" id="lon-field" name="lon" value="-84.0636"></input>
+        <button class="btn btn-default" id="jumpto">Jump</button>
+      </div>
+      <div class="form-group">
+        <a id="results-count"></a>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-default" id="search">Search</button>
+      </div>
+    </div>
+    <!-- Heatmap filters -->
+    <div id="heatmap-filters" class="controls">
+      <button class="btn btn-default" style="margin-left: 10px; position: fixed;" id="slide-button"><span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span></button>
+      <button class="btn btn-default" style="margin-left: 10px; position: fixed;" id="" data-toggle="modal" data-target="#change-heatmap-fields">Edit Filter Fields</button>
+      <i id="heatmap-sample-status" style="float:right;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+      <div class="row" style="margin-top: 40px;">
+        <div class="col-md-4 col-sm-4" id="filters">
+          <div class="form-group">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" id='results' role="dialog" data-backdrop="static">
+      <div class="modal-dialog" id='results-modal' role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="btn" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Results</h4>
+          </div>
+          <div class="modal-body" style="height:75vh;">
+            <button class="btn btn-default" style="margin-left: 10px; position: fixed;" id="slide-button"><span class="glyphicon glyphicon-resize-horizontal" aria-hidden="true"></span></button>
+            <button class="btn btn-default" style="margin-left: 10px; position: fixed;" id="edit-filter-fields-button" data-toggle="modal" data-target="#change-fields">Edit Filter Fields</button>
+            <button class="btn btn-default" style="float:right;" id="next-page">Next Page</button>
+            <button class="btn btn-default" style="float:right; margin-right: 50px;" id="prev-page">Previous Page</button>
+            <i id="results-query-status" style="float:right;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+            <div class="row" style="margin-top: 40px;">
+              <div class="col-md-4 col-sm-4" id="filters">
+                <div class="form-group">
+
+                </div>
+              </div>
+              <div class="col-md-8 col-sm-8" id="results-table-div">
+                <p id="filtered-count"></p>
+                <table class="table" id="results-table">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Modality</th>
+                      <th>Date</th>
+                      <th>View</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <i id="results-sample-status" style="float:left;" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+            <button type="btn" class="btn btn-default" id="download-all">Download All</button>
+            <iframe id="download-frame" style="display:none;"></iframe>
+            <button type="btn" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+<div class="modal fade" id="change-fields" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Metadata Fields</h4>
+      </div>
+      <div class="modal-body">
+        <input id="field-search" placeholder="Search"></input>
+        <div class="form-group" id="field-list">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="change-heatmap-fields" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Metadata Fields</h4>
+      </div>
+      <div class="modal-body">
+        <input id="field-search" placeholder="Search"></input>
+        <div class="form-group" id="field-list">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="bower_components/geojs/geo.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="http://10.104.6.45:8080/static/built/girder_lib.min.js"></script>
+    <script type="text/javascript" src="http://10.104.6.45:8080/static/built/girder_app.min.js"></script>
+    <!-- <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js" charset="UTF-8"></script> -->
+    <script type="text/javascript" src="bower_components/moment/min/moment.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="bower_components/moment-timezone/moment-timezone.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="js/jquery.lazy.js"></script>
+    <script type="text/javascript" src="js/maputils.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="js/bootstrap-slider.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="js/interact.min.js" charset="UTF-8"></script>
+
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="js/girder_init.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/ResultsView.js"></script>
+    <script type="text/javascript" src="js/FilterComponent.js"></script>
+
+
+  </body>
+</html>

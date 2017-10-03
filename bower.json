@@ -1,0 +1,30 @@
+{
+  "name": "imagery-viewer",
+  "authors": [
+    "Andrew H <andrew.haberlandt@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "N/A",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "eonasdan-bootstrap-datetimepicker": "^4.17.47",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13",
+    "geojs": "^0.12.1",
+    "jquery": "^3.2.1",
+    "bootstrap": "^3.3.7"
+  },
+  "resolutions": {
+    "jquery": "^3.2.1",
+    "bootstrap": "^3.3.7"
+  }
+}
